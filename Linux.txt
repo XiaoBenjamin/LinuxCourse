@@ -1,0 +1,95 @@
+With any Linux system, managing the system software is a major part of keeping the system working properly, Ubuntu is no exception. In my previous article, I covered this information for CentOS, this article will cover the Ubuntu side of Managing Software.
+There is a lot of information in this article, so make sure you have a fair understanding of everything as well as how it works together.
+APT and DPKG
+Two main commands used by Ubuntu are ‘apt’ and ‘dpkg’.
+The command ‘apt’ stands for ‘Advanced Package Tool’. ‘Debian Package’ is what ‘dpkg’ stand for on Ubuntu.
+NOTE: If you have read the previous article or you know Red Hat systems, the ‘apt’ command is the same in function to ‘yum’. The ‘dpkg’ command is similar to ‘rpm’ used on Red Hat systems.
+Let’s look at installing an package using ‘apt’ to be familiar with the command. As in the previous article, let’s install ‘nmap’. The command to install ‘nmap’ is ‘sudo apt install nmap’. You could use ‘sudo su’ to have a Root prompt and stay in privileged mode. Press ‘y’ to proceed with the installation after you enter the command.
+The sub-command ‘install’ is used to specify that a package is being installed.
+To see the information on a package, installed or not, the command is ‘apt show <package-name>’. For example, you can type ‘apt show nmap’ for more information about the ‘nmap’ package.
+Most software packages have what are called dependencies. A dependency is a file or another package that the specified package requires to be executed. If the required dependencies are not installed, then the package will not work. When you run the command ‘apt show <package-name>, there is a section starting with ‘Depends:’ that lists the dependencies for the specified package.
+If you have installed a package and no longer need to use it or leave it installed, you can uninstall the package with the command ‘sudo apt remove <package-name>’.
+To see a listing of all installed packages, use the command ‘sudo apt list –installed’. The listing is in alphabetical order by package name. The list will include packages and dependencies installed during the initial Operating System (OS) installation and after.
+The listing of the packages is downloaded from a set of repositories. Some people refer to the repositories as ‘repos’. Each repo contains a list of available files and the version numbers. If a newer file version is available, then the updated file can be downloaded and installed.
+To see the repo lists, you can look in the folder ‘/var/lib/apt/lists/’. Here, there are files ending in ‘packages’. The beginning of the filename is the name of the repository. You can list the contents of the file with the command ‘cat <filename’ to see a listing of the packages and information on each package. The information includes version number, dependencies and more.
+You can get a full list of all files, installed or not installed, with the command: ‘apt-cache search . | sort -d’. You will definitely want to pipe the command through ‘sort’ or it will not be too easily searched through. You can add another pipe to go through it page by page by adding ‘| less’.
+If you want to see what files have been installed by a certain package, or will be installed by a specific package, then run the command ‘dpkg -L <package-name>’.
+To use ‘dpkg’ for ipackage information, use the command ‘dpkg -s <package-name>’.
+Keep in mind the use of the ‘-L’ and the ‘-s’ for searching for packages and files.
+Cleaning out the cache for dpkg, there are three commands:
+sudo apt clean – deletes packages that are installed and the downloaded package files are not needed.
+sudo apt autoclean – cleans packages not in the package list or packages that have older dates than what is in the repo lists.
+sudo apt autoremove – clears unneeded files where the package has been uninstalled.
+If you want to download a package to look it over and not install it, use the following command: ‘sudo apt download <package-name>’. Keep in mind that the package will be downloaded into the present working directory (pwd).
+If you come across a file on your system and you do not know where it cane from, then you can find out. The command is ‘dpkg -S <path-and-filename>’.
+Repositories
+We discussed repositories before, but now we can look into it deeper.
+Linux systems have a listing of Repositories to use for updating packages. A Repository has a list of all packages that it manages. The list contains the package name, version number and system architecture (x86, amd64, etc). When performing an update, ‘sudo apt update’, your system will download the repo lists to ‘/var/lib/apt/lists’. When a system upgrade is performed, ‘sudo apt upgrade’, the lists are compared to what is installed on the system. Any newer versions of packages that are found on the lists will be picked for download and installation. The upgrades will, of course, include any new dependencies. Upgrades may also cause some dependencies to be not needed anymore. The files not needed will be removed when a ‘sudo apt autoremove’ command is issued.
+Repository information can be found in ‘/etc/apt/sources.list.d/’. There are also ‘.save’ files which contain a backup of the same information.
+To see a listing of repositories, use the command ‘sudo apt-cache policy’.
+To better manage your repo list, you con open ‘Synaptic’, then click on ‘Settings’ and the move down to ‘Repostories’. Once the new window opens, click on the ‘Other Software’ tab. The lower square will contain a listing of all repos which can be checked (enabled), or unchecked (disabled).
+Similar to CentOS, you can have a server in your company which contains specific packages your company needs to maintain. You can add a repo to the Synaptic list which can either be ‘http’ or ‘file’ to point to a specific server within your network. Just add the repo and then install the software. After the initial install, the software can be updated on the server and whenever an upgrade is performed, the systems will update as well.
+If you wanted to prevent a package from being updated, you can issue the command ‘sudo apt-mark hold <package-name>’. The package will not be upgraded from the current version. You can remove the hold with the command ‘sudo apt-mark unhold <package-name>’.
+Cache
+The cache, or lists. Are download to ‘/var/lib/apt/lists/’. The files are named after the repo or ppa followed by other information for the list. If you view a file you will see the package name, version and the commands offered by the package. The commands from the lists are used when you type a command that is unknown. You will get a result back that the command is not found, but can be installed with ‘sudo apt install <package-name>’.
+Remember, the lists are updated with the command ‘sudo apt update’. When you add a repository to the list, the lists will be automatically updated. To add a repo, use the command ‘sudo add-apt-repository ppa:<repository>’.
+The actual packages are downloaded to ‘/var/cache/apt/archives/’. You can see the space taken up by the cache with the command ‘du -sh /var/cache/apt/archives’.
+Installing from Source Code
+If you know anything about programming, then you can download the source code for a package and change it to meet your needs.
+For downloading Source Code in Ubuntu, you need to open Synaptic and go to the Repository list as mentioned above. Find the repo in question and there should be a second line which has ‘(Source Code) at the end. Make sure the line is checked (enabled). Perform a list update (sudo apt update) before executing ‘apt source <package-name>’.
+NOTE: Be aware that the source code is downloaded to the current folder. Also, if you perform the download as Root, using ‘sudo’, then you need to change the permissions on the files and folders.
+Before compiling code, you need to install an essential package with the command ‘sudo apt install build-essential’. The package includes everything you should need for basic compiling.
+The nice thing about the ‘apt source’ command is that after the compressed source file is downloaded, it is automatically extracted for you. Switch into the new folder and perform the following commands:
+configure
+make
+make install
+NOTE: Any errors you may get when performing the ‘./configure’ you will need to search for a fix before continuing. Be sure to perform the ‘./configure’ command again until the command finishes without errors.
+In some cases, it is easier to locate the home site for the author of the package and download the source directly from there. Either way, you should be able to compile the file from source.
+Conclusion
+Hopefully, between this article and the similar one for CentOS, you should have a fair understanding of managing your software.
+Make sure you look over both articles and practice them.
+Anyone using Linux has an understanding, even a basic one, of installing software. Linux comes with repositories of software for installation. The software is installed using the ‘apt’ command.
+Other repositories exist which require different commands. Other repositories include:
+flatpak
+snap
+We will be looking at flatpak and a specific application called What IP. The software is used to get information on your TCP/IP connections. The program is useful to verify a Virtual Private Network (VPN) if you should use one.
+Flatpak Basics
+Flatpak is a package manager that allows you to install packages. The packages have all the necessary dependencies built-in to not cause issues with other packages. Flatpak applications are executed in a sandbox to prevent further issues with incompatibility issues with other packages.
+The packages can be written in various programming languages to allow a wider range of additions from various developers.
+To get started with Flatpak, you need to first install it.
+Flatpak Installation
+There are a few steps to get Flatpak installed and running. To start, you need to install the basic program depending on your version of Linux.
+For Ubuntu 18.10 and above, the command is: ‘sudo apt install flatpak’.
+If you are using a Ubuntu version less than 18.10, then you need to add the repository first with the command ‘sudo add-apt-repository ppa:alexlarsson/flatpak’. Then you need to update the repository lists with the command ‘sudo apt update’ the complete the Flatpak installation with ‘sudo apt install flatpak’.
+NOTE: If you have another Linux distro, look at the site at website for instructions to install Flatpak.
+After the basic installation, you can install a plug-in to assist you so you do not need to use the command-line to install Flatpak apps. Installation of the plug-in is completed with the command: ‘sudo apt install gnome-software-plugin-flatpak’.
+Like with the ‘apt’ command, you need a list of repositories to get the software lists and programs. The command ‘flatpak remote-add if-not-exists flathub website adds the Flathub Repository to your list.
+Once these steps have been completed, you should restart your system.
+Installing Flatpak Apps
+Now that everything is ready, you can open a browser and go to website. Here, you can search for your applications or browse through the categories of your choice.
+Once you have selected a program, you should see an 'Install' button. Click on it and a window should appear asking you to run the file with 'Software Install (Default)' or to 'Save' the file. Select the default to use 'Software Install (Default)'. The program should be downloaded and installed as shown in Figure 1.
+FIGURE 1
+Continue the process for other apps you are interested in using on your Linux system.
+Running a Flatpak Application
+Look through your ‘System Menu’ and you should find your downloaded apps.
+If the menu is sorted into categories, then the ‘What IP’ program should be under the ‘Internet’ category.
+Start ‘What IP’ and you should see something similar to Figure 2 (I did block out my external IP address for security reasons).
+FIGURE 2
+You can see that there is a listing for my internal network from my wireless adapter. There is also a Virtual Bridge (Virtual Box).
+At the bottom of the window, there are two more tabs to look into. The first is 'Ports' and the second is for the 'LAN'.
+Figure 3 shows the output for ‘Ports’. The list is all the ports being used, either TCP or UDP, on the system. To the right of each port is a button. When you click on the button, the port is tested to see if the port is reachable from the public Internet. An ‘X’, as shown in Figure 3, lets you know that the port is secure.
+FIGURE 3
+The last tab is the ‘LAN’ tab to show other devices on your Local Area Network (LAN). The LAN tab is shown in Figure 4.
+FIGURE 4
+NOTE: There is a Refresh button in the top left corner. You can press the button to have it re-scan all the information for all the tabs.
+Testing a Virtual Private Network (VPN)
+If you should have a VPN that you use to prevent people on the Internet from knowing where you are, then you can test it using ‘What IP’.
+I open ‘What IP’ and click the refresh button, or close and re-open it. My first tab, ‘IP’, is shown in Figure 5.
+FIGURE 5
+You can see that now my IP Address is being listed with a location of London, England. With some VPNs, you can change your location to more than one place. Maybe I should jet over to Australia as shown in Figure 6.
+FIGURE 6
+By using ‘What IP’ I can see what is seen by the Internet for my network as well as my internal network. I can now feel assured that my system is not seen as it truly is, as shown in Figure 2. Anything I do with my VPN enabled shows me somewhere other than where I am.
+Conclusion
+There are many useful programs on Flatpak. For anyone wanting to know about their network, I do recommend ‘What IP’. It gives you the chance to test your Ports. It lets you see your Internet IP address.
+'Flatpak' and 'What IP' are two programs I think every Linux system should have installed, especially a system which can access the Internet.
+Try 'What IP' and see how your system is perceived on the Internet.
