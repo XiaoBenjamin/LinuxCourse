@@ -8,6 +8,54 @@
 #define EWL 15
 #define LENGTH 50
 
+char empty_word[][EWL]={"of","to","in","and","as","from","for","with","that","have",
+					"by","on","upon","about","above","across","among","ahead","after","a",
+					"an","although","at","also","along","around","always","away","any","up",
+					"under","until","before","between","beyond","behind","because","what","when","would",
+					"could","who","whom","whose","which","where","why","without","whether","down",
+					"during","despite","over","off","only","other","out","than","the","then",
+					"through","throughout","that","these","this","those","there","therefore","till","some",
+					"such","since","so","can","many","much","more","may","might","must",
+					"ever","even","every","each"
+};
+typedef struct Word
+{
+	char ch[50];
+	int num;
+	struct list_head list;
+}Word;
+int totalWord,totalNode;
+char choice='2';
+int  dsnum=LENGTH;
+int getWord(char word[],FILE *fp)
+{
+	char c;
+	int count=0;
+	c=fgetc(fp);
+	while(!feof(fp)&&!(c>='a'&&c<='z')&&!(c>='A'&&c<='Z'))c=fgetc(fp);
+	while(!feof(fp)&&(c>='a'&&c<='z')||(c>='A'&&c<='Z')||c=='-'||c=='\'')
+	{
+		word[count++]=(c>='A'&&c<='Z')?c+32:c;
+		c=fgetc(fp);
+		if(c=='\n'&&word[count-1]=='-')c=fgetc(fp);	
+	}
+	if(count>0)
+	{
+		if(word[count-1]=='\'')count--;
+		word[count]='\0';
+		return 1;
+	}
+	return 0;	
+}
+int isNotEmptyWord(char word[])
+{
+	int EWlength=sizeof(empty_word)/sizeof(empty_word[0]);	
+	int i;
+	for(i=0;i<EWlength;i++)if(strcmp(word,empty_word[i])==0)return 0;
+	return 1;
+}
+int listEach(struct list_head *plist,struct list_head *head,char tempword[],Word *node)
+{
 	list_for_each(plist,head)
 	{
 		Word *listnode=list_entry(plist,Word,list);
@@ -21,6 +69,7 @@
 }
 int isEndOfs(Word *node,struct list_head *plist,struct list_head *head)
 {
+	if(strcmp(node->ch,"is")==0)return 0;
 	char suffix[20]="ies",*suffixp=suffix; 
 	char tempword[50];
 	char *p=tempword;
@@ -157,7 +206,7 @@ void display(struct list_head *plist,struct list_head *head)
 		printLength--;
 		if(printLength==0)break;
 	}
-	printf("After removing the Empty words, The total number of words in the article:%4d",totalWord);
+	printf("After removing the Empty words, The total number of words in the article:%4d\n",totalWord);
 }
 void tips()
 {
@@ -174,7 +223,7 @@ int main()
 	int num=0;
 	FILE *fp;
 	char temp[50];
-	char filename[100]="Linux.txt";
+	char filename[100]="test.txt";
 	int flag=0;
 	struct list_head head,*plist;
 	Word *ptmp;
