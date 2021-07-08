@@ -5,8 +5,6 @@
 #include <linux/list.h>
 #define EWL 15
 #define LENGTH 50
-#define EWL 15
-#define LENGTH 50
 
 char empty_word[][EWL]={"of","to","in","and","as","from","for","with","that","have",
 					"by","on","upon","about","above","across","among","ahead","after","a",
